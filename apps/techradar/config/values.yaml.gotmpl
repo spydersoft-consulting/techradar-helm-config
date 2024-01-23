@@ -1,0 +1,29 @@
+controllers:
+  frontend:
+    containers:
+      main:
+        image:
+          tag: {{ .Values.imageTags.frontend }}
+        envFrom:
+        - secretRef:
+            name: techradar-frontend
+  data-api:
+    containers:
+      main:
+        image:
+          tag: {{ .Values.imageTags.data_api }}
+        envFrom:
+        - secretRef:
+            name: techradar-data-api
+
+ingress:
+  main:
+    hosts:
+      - host: techradar.mattgerega.net
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              name: frontend
+
+env_name: {{ .Values.env_name }}

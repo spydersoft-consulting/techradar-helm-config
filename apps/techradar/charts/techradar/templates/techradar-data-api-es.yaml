@@ -1,0 +1,24 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: techradar-data-api-es
+spec:
+  refreshInterval: 1h0m0s
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: techradar-data-api
+    template:
+      type: kubernetes.io/secret
+      engineVersion: v2
+      data:
+        ConnectionStrings__TechRadarDatabase: {{`"{{ .connection_string }}"`}}
+        Identity__ClientId: {{ `"{{ .client_id }}"` }}
+        Identity__ClientSecret: {{`"{{ .client_secret }}"`}}
+        
+  data:
+  - secretKey: connection_string
+    remoteRef:
+      key: secrets-k8/techradar/{{ .Values.env_name }}/data
+      property: connectionString

@@ -1,0 +1,32 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: techradar-frontend-es
+spec:
+  refreshInterval: 1h0m0s
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: techradar-frontend
+    template:
+      type: kubernetes.io/secret
+      engineVersion: v2
+      data:
+        Identity__Authority: {{`"{{ .authority }}"`}}
+        Identity__ClientId: {{ `"{{ .client_id }}"` }}
+        Identity__ClientSecret: {{`"{{ .client_secret }}"`}}
+        
+  data:
+  - secretKey: authority
+    remoteRef:
+      key: secrets-k8/techradar/{{ .Values.env_name }}/auth
+      property: authority
+  - secretKey: client_id
+    remoteRef:
+      key: secrets-k8/techradar/{{ .Values.env_name }}/auth
+      property: client_id
+  - secretKey: client_secret
+    remoteRef:
+      key: secrets-k8/techradar/{{ .Values.env_name }}/auth
+      property: client_secret

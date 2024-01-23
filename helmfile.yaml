@@ -1,0 +1,13 @@
+bases:
+- environments.yaml
+---
+repositories:
+- name: common
+  url: https://bjw-s.github.io/helm-charts
+
+helmfiles:
+- path: ./apps/techradar/helmfile.yaml
+  values:
+  - environments/{{ .Environment.Name }}/values.yaml
+  - environments/{{ .Environment.Name }}/images.yaml
+      

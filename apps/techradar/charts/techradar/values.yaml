@@ -1,0 +1,112 @@
+defaultPodOptions:
+  imagePullSecrets:
+    - name: spydersoft-proget
+
+controllers:
+  main:
+    enabled: false
+  frontend:
+    enabled: true
+    type: deployment
+    replicas: 1
+    strategy: RollingUpdate
+    containers:
+      main:
+        image:
+          repository: proget.mattgerega.com/spydersoft/techradar/techradar.frontend
+          tag: latest
+          pullPolicy: IfNotPresent
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+  data-api:
+    enabled: true
+    type: deployment
+    replicas: 1
+    strategy: RollingUpdate
+    containers:
+      main:
+        image:
+          repository: proget.mattgerega.com/spydersoft/techradar/techradar.data.api
+          tag: latest
+          pullPolicy: IfNotPresent
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              initialDelaySeconds: 0
+              periodSeconds: 10
+              timeoutSeconds: 1
+              failureThreshold: 3
+service:
+  main:
+    enabled: false
+  frontend:
+    enabled: true
+    controller: frontend
+    nameOverride: frontend
+    primary: true
+    type: ClusterIP
+    ports:
+      http:
+        port: 80
+        targetPort: 8080
+  data-api:
+    enabled: true
+    controller: data-api
+    nameOverride: data-api
+    primary: true
+    type: ClusterIP
+    ports:
+      http:
+        port: 80
+        targetPort: 8080
+
+ingress:
+  main:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: techradar.mattgerega.net
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              name: frontend
+
+env_name: dev

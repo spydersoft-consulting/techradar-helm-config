@@ -1,0 +1,31 @@
+stages:
+- template: stages/stages-generate-commit-manifests/v1.yml@templates
+  parameters:
+    kubernetesConnectionName: "k8-nonprod"
+    environmentName: "stage"
+    namespace: "ra-stage-techradar"
+    helmfileDirectory: ./
+    argoRepoName: ops_nonprod_cluster
+    argoBaseDir: apps/reference-architecture
+
+- template: stages/stages-generate-commit-manifests/v1.yml@templates
+  parameters:
+    kubernetesConnectionName: "k8-prod"
+    environmentName: "production"
+    namespace: "ra-prod-techradar"
+    helmfileDirectory: ./
+    argoRepoName: ops_prod_cluster
+    argoBaseDir: apps/reference-architecture
+    pre_generate_steps:  
+      - script: |
+          git config --global user.email "gerega@gmail.com"
+          git config --global user.name "CI/CD User"
+          cd $(Build.SourcesDirectory)
+          git checkout main
+          git pull --rebase
+          
+          cp $(Build.SourcesDirectory)/environments/stage/images.yaml $(Build.SourcesDirectory)/environments/production/images.yaml -f
+          git add --all
+          git commit -m "Promote Stage To Production [skip ci]"
+          git push origin main
+        displayName: Copy Stage Images to Production

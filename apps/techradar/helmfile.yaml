@@ -1,0 +1,7 @@
+releases:
+  - name: techradar
+    chart: ./charts/{{`{{ .Release.Name }}`}}
+    missingFileHandler: Warn
+    values:
+    - config/values.yaml.gotmpl
+    - config/{{`{{ .Environment.Name }}`}}.yaml
