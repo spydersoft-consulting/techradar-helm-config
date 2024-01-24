@@ -19,7 +19,7 @@ controllers:
 ingress:
   main:
     hosts:
-      - host: techradar.mattgerega.net
+      - host: techradar.{{ .Values.environment_hostname }}
         paths:
           - path: /
             pathType: Prefix
