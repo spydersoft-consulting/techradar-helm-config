@@ -1,9 +1,7 @@
 stages:
 - template: stages/stages-generate-commit-manifests/v1.yml@templates
   parameters:
-    kubernetesConnectionName: "k8-nonprod"
     environmentName: "test"
-    namespace: "ra-test-techradar"
     helmfileDirectory: ./
     argoRepoName: ops_nonprod_cluster
     argoBaseDir: apps/reference-architecture
