@@ -14,8 +14,6 @@ spec:
       engineVersion: v2
       data:
         ConnectionStrings__TechRadarDatabase: {{`"{{ .connection_string }}"`}}
-        Identity__ClientId: {{ `"{{ .client_id }}"` }}
-        Identity__ClientSecret: {{`"{{ .client_secret }}"`}}
         
   data:
   - secretKey: connection_string
