@@ -14,7 +14,7 @@ spec:
       engineVersion: v2
       data:
         ConnectionStrings__TechRadarDatabase: {{`"{{ .connection_string }}"`}}
-        
+        Identity__Authority: {{`"{{ .authority }}"`}}
   data:
   - secretKey: connection_string
     remoteRef:
