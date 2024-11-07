@@ -20,3 +20,7 @@ spec:
     remoteRef:
       key: secrets-k8/techradar/{{ .Values.env_name }}/data
       property: connectionString
+  - secretKey: authority
+    remoteRef:
+      key: secrets-k8/techradar/{{ .Values.env_name }}/auth
+      property: authority
