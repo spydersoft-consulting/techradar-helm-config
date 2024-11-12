@@ -3,16 +3,16 @@ configMaps:
     enabled: true
     data:
       Telemetry__Otlp__Endpoint: {{ .Values.otlp_endpoint }}
-      Telemetry__Otlp__ActivitySourceName: "TechRadar.Frontend.{{ title .Values.env_name }}.Activity"
-      Telemetry__Otlp__MeterName: "TechRadar.Frontend.{{ title .Values.env_name }}.Meter"
-      Telemetry__Otlp__ServiceName: "TechRadar.Frontend.{{ title .Values.env_name }}"
+      Telemetry__ActivitySourceName: "TechRadar.Frontend.{{ title .Values.env_name }}.Activity"
+      Telemetry__MeterName: "TechRadar.Frontend.{{ title .Values.env_name }}.Meter"
+      Telemetry__ServiceName: "TechRadar.Frontend.{{ title .Values.env_name }}"
   data-api:
     enabled: true
     data:
       Telemetry__Otlp__Endpoint: {{ .Values.otlp_endpoint }}
-      Telemetry__Otlp__ActivitySourceName: "TechRadar.Data.{{ title .Values.env_name }}.Activity"
-      Telemetry__Otlp__MeterName: "TechRadar.Data.{{ title .Values.env_name }}.Meter"
-      Telemetry__Otlp__ServiceName: "TechRadar.Data.{{ title .Values.env_name }}"
+      Telemetry__ActivitySourceName: "TechRadar.Data.{{ title .Values.env_name }}.Activity"
+      Telemetry__MeterName: "TechRadar.Data.{{ title .Values.env_name }}.Meter"
+      Telemetry__ServiceName: "TechRadar.Data.{{ title .Values.env_name }}"
 
 controllers:
   frontend:
