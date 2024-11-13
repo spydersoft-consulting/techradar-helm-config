@@ -1,18 +1,26 @@
 configMaps:
+  common:
+    enabled: true
+    data:
+      Telemetry__Trace__Otlp__Endpoint: "http://tfx-internal.gerega.net:32326"
+      Telemetry__Log__Otlp__Endpoint: "https://loki.mattgerega.net/otlp/v1/logs"
+      Telemetry__Metrics__Otlp__Endpoint: "https://mimir.mattgerega.net/otlp"
   frontend:
     enabled: true
     data:
-      Telemetry__Otlp__Endpoint: {{ .Values.otlp_endpoint }}
+      {{ if ne .Environment.Name "production" }}
       Telemetry__ActivitySourceName: "TechRadar.Frontend.{{ title .Values.env_name }}.Activity"
       Telemetry__MeterName: "TechRadar.Frontend.{{ title .Values.env_name }}.Meter"
       Telemetry__ServiceName: "TechRadar.Frontend.{{ title .Values.env_name }}"
+      {{ end }}
   data-api:
     enabled: true
     data:
-      Telemetry__Otlp__Endpoint: {{ .Values.otlp_endpoint }}
+      {{ if ne .Environment.Name "production" }}
       Telemetry__ActivitySourceName: "TechRadar.Data.{{ title .Values.env_name }}.Activity"
       Telemetry__MeterName: "TechRadar.Data.{{ title .Values.env_name }}.Meter"
       Telemetry__ServiceName: "TechRadar.Data.{{ title .Values.env_name }}"
+      {{ end }}
 
 controllers:
   frontend:
@@ -24,6 +32,8 @@ controllers:
         - secretRef:
             name: techradar-frontend
         - configMapRef:
+            identifier: common
+        - configMapRef:
             identifier: frontend
   data-api:
     containers:
@@ -33,6 +43,8 @@ controllers:
         envFrom:
         - secretRef:
             name: techradar-data-api
+        - configMapRef:
+            identifier: common
         - configMapRef:
             identifier: data-api
             
