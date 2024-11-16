@@ -1,6 +1,6 @@
 defaultPodOptions:
   imagePullSecrets:
-    - name: spydersoft-proget
+    - name: cr-spydersoft-github
 
 controllers:
   main:
@@ -13,7 +13,7 @@ controllers:
     containers:
       main:
         image:
-          repository: proget.mattgerega.com/spydersoft/techradar/techradar.frontend
+          repository: ghcr.io/spydersoft-consulting/techradar-frontend
           tag: latest
           pullPolicy: IfNotPresent
         probes:
@@ -22,7 +22,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /healthz
+                path: /livez
                 port: 8080
               initialDelaySeconds: 0
               periodSeconds: 10
@@ -33,7 +33,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /healthz
+                path: /readyz
                 port: 8080
               initialDelaySeconds: 0
               periodSeconds: 10
@@ -47,7 +47,7 @@ controllers:
     containers:
       main:
         image:
-          repository: proget.mattgerega.com/spydersoft/techradar/techradar.data.api
+          repository: ghcr.io/spydersoft-consulting/techradar-data-api
           tag: latest
           pullPolicy: IfNotPresent
         probes:
@@ -56,7 +56,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /healthz
+                path: /livez
                 port: 8080
               initialDelaySeconds: 0
               periodSeconds: 10
@@ -67,7 +67,7 @@ controllers:
             custom: true
             spec:
               httpGet:
-                path: /healthz
+                path: /readyz
                 port: 8080
               initialDelaySeconds: 0
               periodSeconds: 10

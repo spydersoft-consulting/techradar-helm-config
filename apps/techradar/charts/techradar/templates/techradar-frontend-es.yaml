@@ -13,9 +13,9 @@ spec:
       type: kubernetes.io/secret
       engineVersion: v2
       data:
-        Identity__Authority: {{`"{{ .authority }}"`}}
+        Identity__Authority: {{ `"{{ .authority }}"` }}
         Identity__ClientId: {{ `"{{ .client_id }}"` }}
-        Identity__ClientSecret: {{`"{{ .client_secret }}"`}}
+        Identity__ClientSecret: {{ `"{{ .client_secret }}"` }}
         
   data:
   - secretKey: authority

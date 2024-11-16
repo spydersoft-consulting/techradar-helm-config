@@ -12,7 +12,7 @@ stages:
     helmfileDirectory: ./
     argoRepoName: ops_prod_cluster
     argoBaseDir: apps/reference-architecture
-    pre_generate_steps:  
+    pregenerateSteps:  
       - script: |
           git config --global user.email "gerega@gmail.com"
           git config --global user.name "CI/CD User"
