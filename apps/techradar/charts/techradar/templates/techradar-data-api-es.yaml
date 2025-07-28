@@ -13,14 +13,18 @@ spec:
       type: kubernetes.io/secret
       engineVersion: v2
       data:
-        ConnectionStrings__TechRadarDatabase: {{ `"{{ .connection_string }}"` }}
+        ConnectionStrings__TechRadarDatabase: {{ `"Host=techradar-postgress;Database=techradar;Username={{ .db_user }};Password={{ .db_password }}"` }}
         Identity__Authority: {{ `"{{ .authority }}"` }}
   data:
-  - secretKey: connection_string
-    remoteRef:
-      key: secrets-k8/techradar/{{ .Values.env_name }}/data
-      property: connectionString
   - secretKey: authority
     remoteRef:
       key: secrets-k8/techradar/{{ .Values.env_name }}/auth
       property: authority
+  - secretKey: db_user
+    remoteRef:
+      key: secrets-k8/techradar/{{ .Values.env_name }}/postgres
+      property: user
+  - secretKey: db_password
+    remoteRef:
+      key: secrets-k8/techradar/{{ .Values.env_name }}/postgres
+      property: password
