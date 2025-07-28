@@ -127,6 +127,7 @@ service:
     type: ClusterIP
     ports:
       http:
+        enabled: true
         port: 80
         targetPort: 8080
   data-api:
@@ -137,6 +138,7 @@ service:
     type: ClusterIP
     ports:
       http:
+        enabled: true
         port: 80
         targetPort: 8080
   postgres:
