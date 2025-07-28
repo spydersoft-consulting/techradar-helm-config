@@ -3,7 +3,7 @@ bases:
 ---
 repositories:
 - name: common
-  url: https://bjw-s.github.io/helm-charts
+  url: https://bjw-s-labs.github.io/helm-charts
 
 helmfiles:
 - path: ./apps/techradar/helmfile.yaml
