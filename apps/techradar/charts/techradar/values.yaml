@@ -50,6 +50,25 @@ controllers:
           repository: ghcr.io/spydersoft-consulting/techradar-data-api
           tag: latest
           pullPolicy: IfNotPresent
+        env:
+        - value: postgresdb
+          name: DB_TYPE
+        - value: '{{ .Release.Name }}-postgres'
+          name: DB_POSTGRESDB_HOST
+        - value: 5432
+          name: DB_POSTGRESDB_PORT
+        - value: techradar
+          name: DB_POSTGRESDB_DATABASE
+        - valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_NON_ROOT_USER
+          name: DB_POSTGRESDB_USER
+        - valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_NON_ROOT_PASSWORD
+          name: DB_POSTGRESDB_PASSWORD
         probes:
           liveness:
             enabled: true
@@ -73,6 +92,30 @@ controllers:
               periodSeconds: 10
               timeoutSeconds: 1
               failureThreshold: 3
+  postgres:
+    containers:
+      main:
+        image:
+          repository: postgres
+          pullPolicy: IfNotPresent
+          tag: 17
+        envFrom:
+        - secretRef:
+            name: postgres-secrets
+        env:
+        - value: 5432
+          name: POSTGRES_PORT
+        - value: postgres-service
+          name: POSTGRES_HOST
+        - value: techradar
+          name: POSTGRES_DB
+        strategy:
+          type: Recreate
+    strategy: Recreate
+    type: deployment
+    replicas: 1
+    enabled: true
+    revisionHistoryLimit: 3
 service:
   main:
     enabled: false
@@ -96,6 +139,53 @@ service:
       http:
         port: 80
         targetPort: 8080
+  postgres:
+    type: ClusterIP
+    primary: false
+    ports:
+      postgres:
+        enabled: true
+        port: 5432
+    controller: postgres
+configMaps:
+  postgres-init-data:
+    data:
+      init-data.sh: |
+        #!/bin/bash
+        set -e;
+        if [ -n "${POSTGRES_NON_ROOT_USER:-}" ] && [ -n "${POSTGRES_NON_ROOT_PASSWORD:-}" ]; then
+          psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+            CREATE USER "${POSTGRES_NON_ROOT_USER}" WITH PASSWORD '${POSTGRES_NON_ROOT_PASSWORD}';
+            GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DB} TO "${POSTGRES_NON_ROOT_USER}";
+        EOSQL
+        else
+          echo "SETUP INFO: No Environment variables given!"
+        fi
+    enabled: true
+persistence:
+  postgres-init-data:
+    type: configMap
+    advancedMounts:
+      postgres:
+        main:
+        - subPath: init-data.sh
+          path: /docker-entrypoint-initdb.d/init-n8n-user.sh
+    enabled: true
+    identifier: postgres-init-data
+  postgres-data:
+    advancedMounts:
+      postgres:
+        main:
+        - path: /var/lib/postgresql/data
+    storageClass: nfs-client
+    accessMode: ReadWriteMany
+    type: persistentVolumeClaim
+    size: 300Gi
+    enabled: true
+  postgres-secrets:
+    type: secret
+    name: postgres-secrets
+    enabled: true
 
 ingress:
   main:
