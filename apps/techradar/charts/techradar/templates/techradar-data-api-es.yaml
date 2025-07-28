@@ -13,7 +13,7 @@ spec:
       type: kubernetes.io/secret
       engineVersion: v2
       data:
-        ConnectionStrings__TechRadarDatabase: {{ `"Host=techradar-postgress;Database=techradar;Username={{ .db_user }};Password={{ .db_password }}"` }}
+        ConnectionStrings__TechRadarDatabase: {{ `"Host=techradar-postgres;Database=techradar;Username={{ .db_user }};Password={{ .db_password }}"` }}
         Identity__Authority: {{ `"{{ .authority }}"` }}
   data:
   - secretKey: authority
