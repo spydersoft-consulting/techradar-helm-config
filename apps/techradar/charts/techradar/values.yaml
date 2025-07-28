@@ -191,6 +191,8 @@ persistence:
 
 ingress:
   main:
+    enabled: false
+  frontend:
     enabled: true
     className: nginx
     annotations:
