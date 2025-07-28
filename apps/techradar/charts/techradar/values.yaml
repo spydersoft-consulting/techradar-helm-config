@@ -7,11 +7,11 @@ controllers:
     enabled: false
   frontend:
     enabled: true
-    type: deployment
-    replicas: 1
-    strategy: RollingUpdate
     containers:
       main:
+        type: deployment
+        replicas: 1
+        strategy: RollingUpdate
         image:
           repository: ghcr.io/spydersoft-consulting/techradar-frontend
           tag: latest
@@ -41,11 +41,11 @@ controllers:
               failureThreshold: 3
   data-api:
     enabled: true
-    type: deployment
-    replicas: 1
-    strategy: RollingUpdate
     containers:
       main:
+        type: deployment
+        replicas: 1
+        strategy: RollingUpdate
         image:
           repository: ghcr.io/spydersoft-consulting/techradar-data-api
           tag: latest
@@ -191,12 +191,18 @@ ingress:
   main:
     enabled: true
     className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/proxy-body-size: 500M
+      kubernetes.io/ingress.class: nginx
     hosts:
-      - host: techradar.mattgerega.net
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: frontend
+    - paths:
+      - pathType: Prefix
+        service:
+          name: frontend
+          port: http
+        path: /
+      host: techradar.mattgerega.net
+
 
 env_name: dev

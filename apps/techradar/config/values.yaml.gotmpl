@@ -58,4 +58,15 @@ ingress:
             service:
               name: frontend
 
+ingress:
+  main:
+    hosts:
+    - paths:
+      - pathType: Prefix
+        service:
+          name: frontend
+          port: http
+        path: /
+      host: techradar.{{ .Values.environment_hostname }}
+
 env_name: {{ .Values.env_name }}
