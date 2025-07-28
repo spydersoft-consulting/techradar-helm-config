@@ -164,12 +164,13 @@ configMaps:
     enabled: true
 persistence:
   postgres-init-data:
+    name: postgres-init-data
     type: configMap
     advancedMounts:
       postgres:
         main:
         - subPath: init-data.sh
-          path: /docker-entrypoint-initdb.d/init-n8n-user.sh
+          path: /docker-entrypoint-initdb.d/init-techradar-user.sh
     enabled: true
     identifier: postgres-init-data
   postgres-data:
