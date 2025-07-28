@@ -164,7 +164,6 @@ configMaps:
     enabled: true
 persistence:
   postgres-init-data:
-    name: postgres-init-data
     type: configMap
     advancedMounts:
       postgres:
