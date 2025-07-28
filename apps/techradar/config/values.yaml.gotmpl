@@ -51,16 +51,6 @@ controllers:
 ingress:
   main:
     hosts:
-      - host: techradar.{{ .Values.environment_hostname }}
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: frontend
-
-ingress:
-  main:
-    hosts:
     - paths:
       - pathType: Prefix
         service:
