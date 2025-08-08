@@ -13,10 +13,10 @@ spec:
       type: kubernetes.io/secret
       engineVersion: v2
       data:
-        Identity__Authority: {{ `"{{ .authority }}"` }}
-        Identity__ClientId: {{ `"{{ .client_id }}"` }}
-        Identity__ClientSecret: {{ `"{{ .client_secret }}"` }}
-        
+        OidcProxySettings__Oidc__Authority: {{ `"{{ .authority }}"` }}
+        OidcProxySettings__Oidc__ClientId: {{ `"{{ .client_id }}"` }}
+        OidcProxySettings__Oidc__ClientSecret: {{ `"{{ .client_secret }}"` }}
+
   data:
   - secretKey: authority
     remoteRef:
