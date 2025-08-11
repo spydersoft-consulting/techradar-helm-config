@@ -49,13 +49,14 @@ controllers:
             identifier: data-api
             
 ingress:
-  main:
+  frontend:
     hosts:
-      - host: techradar.{{ .Values.environment_hostname }}
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              name: frontend
+    - paths:
+      - pathType: Prefix
+        service:
+          identifier: frontend
+          port: http
+        path: /
+      host: techradar.{{ .Values.environment_hostname }}
 
 env_name: {{ .Values.env_name }}
