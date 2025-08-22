@@ -1,4 +1,3 @@
 environment_hostname: mattgerega.org
 env_name: stage
-otlp_endpoint: "http://tfx-internal.gerega.net:32326"
-org_id: nonproduction
+alloy_otlp_collector: http://nonproduction-grafana-alloy.grafana:4317
