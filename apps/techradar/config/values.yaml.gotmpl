@@ -15,6 +15,10 @@ configMaps:
       Telemetry__ActivitySourceName: "TechRadar.Frontend.{{ title .Values.env_name }}.Activity"
       Telemetry__MeterName: "TechRadar.Frontend.{{ title .Values.env_name }}.Meter"
       Telemetry__ServiceName: "TechRadar.Frontend.{{ title .Values.env_name }}"
+      {{ else }}
+      Telemetry__ActivitySourceName: "TechRadar.Frontend.Activity"
+      Telemetry__MeterName: "TechRadar.Frontend.Meter"
+      Telemetry__ServiceName: "TechRadar.Frontend"
       {{ end }}
   data-api:
     enabled: true
@@ -23,6 +27,10 @@ configMaps:
       Telemetry__ActivitySourceName: "TechRadar.Data.{{ title .Values.env_name }}.Activity"
       Telemetry__MeterName: "TechRadar.Data.{{ title .Values.env_name }}.Meter"
       Telemetry__ServiceName: "TechRadar.Data.{{ title .Values.env_name }}"
+      {{ else }}
+      Telemetry__ActivitySourceName: "TechRadar.Data.Activity"
+      Telemetry__MeterName: "TechRadar.Data.Meter"
+      Telemetry__ServiceName: "TechRadar.Data"
       {{ end }}
 
 controllers:
