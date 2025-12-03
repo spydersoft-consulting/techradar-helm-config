@@ -6,7 +6,7 @@ repositories:
   url: https://bjw-s-labs.github.io/helm-charts
 
 helmfiles:
-- path: ./apps/techradar/helmfile.yaml
+- path: ./apps/techradar/helmfile.yaml.gotmpl
   values:
   - environments/{{ .Environment.Name }}/values.yaml
   - environments/{{ .Environment.Name }}/images.yaml
