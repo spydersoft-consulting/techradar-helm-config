@@ -210,7 +210,7 @@ route:
               value: /
         backendRefs:
           - identifier: frontend
-            port: http
+            port: 80
 
 
 
