@@ -58,16 +58,10 @@ controllers:
             identifier: common
         - configMapRef:
             identifier: data-api
-            
-ingress:
+
+route:
   frontend:
-    hosts:
-    - paths:
-      - pathType: Prefix
-        service:
-          identifier: frontend
-          port: http
-        path: /
-      host: techradar.{{ .Values.environment_hostname }}
+    hostnames:
+      - techradar.{{ .Values.environment_hostname }}
 
 env_name: {{ .Values.env_name }}

@@ -192,24 +192,26 @@ persistence:
     name: postgres-secrets
     enabled: true
 
-ingress:
+route:
   main:
     enabled: false
   frontend:
-    enabled: true
-    className: nginx
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /
-      nginx.ingress.kubernetes.io/proxy-body-size: 500M
-      kubernetes.io/ingress.class: nginx
-    hosts:
-    - paths:
-      - pathType: Prefix
-        service:
-          identifier: frontend
-          port: http
-        path: /
-      host: techradar.mattgerega.net
+    parentRefs:
+      - name: main
+        namespace: envoy-gateway-system
+        group: gateway.networking.k8s.io
+        kind: Gateway
+    hostnames:
+      - test.mattgerega.net
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+        backendRefs:
+          - identifier: frontend
+            port: 80
+
 
 
 env_name: dev
