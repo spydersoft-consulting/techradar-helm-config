@@ -2,9 +2,9 @@ configMaps:
   common:
     enabled: true
     data:
-      Telemetry__Trace__Otlp__Endpoint: "http://tfx-internal.gerega.net:32326"
-      Telemetry__Log__Otlp__Endpoint: "https://loki.mattgerega.net/otlp/v1/logs"
-      Telemetry__Metrics__Otlp__Endpoint: "https://mimir.mattgerega.net/otlp"
+      Telemetry__Trace__Otlp__Endpoint: "{{ .Values.alloy_otlp_endpoint }}"
+      Telemetry__Log__Otlp__Endpoint: "{{ .Values.alloy_otlp_endpoint }}"
+      Telemetry__Metrics__Otlp__Endpoint: "{{ .Values.alloy_otlp_endpoint }}"
       Telemetry__Trace__Otlp__Headers__X-Scope-OrgID: {{ .Values.org_id }}
       Telemetry__Log__Otlp__Headers__X-Scope-OrgID: {{ .Values.org_id }}
       Telemetry__Metrics__Otlp__Headers__X-Scope-OrgID: {{ .Values.org_id }}
