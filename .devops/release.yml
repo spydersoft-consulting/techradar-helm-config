@@ -5,6 +5,7 @@ stages:
     helmfileDirectory: ./
     argoRepoName: ops_nonprod_cluster
     argoBaseDir: apps/reference-architecture
+    helmfileVersion: "1.2.3"
 
 - template: stages/stages-generate-commit-manifests/v1.yml@templates
   parameters:
@@ -12,6 +13,7 @@ stages:
     helmfileDirectory: ./
     argoRepoName: ops_prod_cluster
     argoBaseDir: apps/reference-architecture
+    helmfileVersion: "1.2.3"
     pregenerateSteps:  
       - script: |
           git config --global user.email "gerega@gmail.com"

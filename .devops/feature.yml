@@ -5,3 +5,4 @@ stages:
     helmfileDirectory: ./
     argoRepoName: ops_nonprod_cluster
     argoBaseDir: apps/reference-architecture
+    helmfileVersion: "1.2.3"
