@@ -33,14 +33,16 @@ if ($branchExists) {
     Invoke-Expression "git fetch"
     Invoke-Expression "git checkout $helmBranch"
     Invoke-Expression "git reset --hard"
+    # Only a branch that already existed on the remote has upstream tracking
+    # info to rebase against -- a brand-new local branch doesn't yet, and
+    # `git pull --rebase` would just fail noisily (harmlessly) for it.
+    Invoke-Expression "git pull --rebase"
 }
 else {
     Write-Host "Creating new local branch -> $helmBranch"
     Invoke-Expression "git checkout -b $helmBranch"
 }
 $imageFile = "./environments/$environment/images.yaml"
-
-Invoke-Expression "git pull --rebase"
 
 Write-Host "Replacing tags in $imageFile"
 $imagePath = (Resolve-Path $imageFile).Path
