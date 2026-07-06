@@ -17,8 +17,8 @@ trigger:
   batch: true
   branches:
     include:
-    - main 
-    - feature/*
+    - main
+    - beta
   paths:
     exclude:
     - README.md
@@ -30,5 +30,5 @@ extends:
   ${{ if contains(variables['Build.SourceBranch'], 'main') }}:
     template: release.yml
   ${{ if not(contains(variables['Build.SourceBranch'], 'main')) }}:
-    template: feature.yml
+    template: beta.yml
 
