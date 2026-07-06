@@ -58,6 +58,14 @@ Write-Host "Replacing tags in $imageFile"
 $imagePath = (Resolve-Path $imageFile).Path
 Push-Location ./scripts
 
+# Must start as an explicit array: $imageArgs += "..." on an uninitialized
+# ($null) variable does string concatenation, not array-append, so a
+# second tag lands glued directly onto the first with no separating space
+# (e.g. "--value imageTags.data_api=1--value imageTags.frontend=1"),
+# which edit-value.py's argparse then rejects as one unrecognized
+# argument. Confirmed via a real build: this silently dropped every tag
+# past the first whenever more than one was ever passed.
+$imageArgs = @()
 foreach ($tag in $tags) {
     $tagSplit = $tag.Split("=")
     $imageArgs += "--value imageTags.$($tagSplit[0])=$($tagSplit[1])"
