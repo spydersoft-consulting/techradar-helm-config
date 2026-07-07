@@ -5,94 +5,17 @@ defaultPodOptions:
 controllers:
   main:
     enabled: false
-  frontend:
-    enabled: true
-    containers:
-      main:
-        type: deployment
-        replicas: 1
-        strategy: RollingUpdate
-        image:
-          repository: ghcr.io/spydersoft-consulting/techradar-frontend
-          tag: latest
-          pullPolicy: IfNotPresent
-        probes:
-          liveness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /livez
-                port: 8080
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
-          readiness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /readyz
-                port: 8080
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
-  data-api:
-    enabled: true
-    containers:
-      main:
-        type: deployment
-        replicas: 1
-        strategy: RollingUpdate
-        image:
-          repository: ghcr.io/spydersoft-consulting/techradar-data-api
-          tag: latest
-          pullPolicy: IfNotPresent
-        env:
-        - value: postgresdb
-          name: DB_TYPE
-        - value: '{{ .Release.Name }}-postgres'
-          name: DB_POSTGRESDB_HOST
-        - value: 5432
-          name: DB_POSTGRESDB_PORT
-        - value: techradar
-          name: DB_POSTGRESDB_DATABASE
-        - valueFrom:
-            secretKeyRef:
-              name: postgres-secrets
-              key: POSTGRES_NON_ROOT_USER
-          name: DB_POSTGRESDB_USER
-        - valueFrom:
-            secretKeyRef:
-              name: postgres-secrets
-              key: POSTGRES_NON_ROOT_PASSWORD
-          name: DB_POSTGRESDB_PASSWORD
-        probes:
-          liveness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /livez
-                port: 8080
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
-          readiness:
-            enabled: true
-            custom: true
-            spec:
-              httpGet:
-                path: /readyz
-                port: 8080
-              initialDelaySeconds: 0
-              periodSeconds: 10
-              timeoutSeconds: 1
-              failureThreshold: 3
   postgres:
+    # bjw-s only appends a controller's identifier as a resource-name suffix
+    # when there's more than one controller of that kind -- with only
+    # postgres left in this chart (frontend/data-api moved to the app repo's
+    # own OCI chart), that would silently rename this Deployment from
+    # techradar-postgres to bare techradar, orphaning the existing resource
+    # instead of adopting it. forceRename keeps the name identical to
+    # what's already live, without affecting persistence/configMap naming
+    # (which was already bare "techradar" even before this split, since
+    # those only ever had a single entry).
+    forceRename: "{{ .Release.Name }}-postgres"
     containers:
       main:
         image:
@@ -119,33 +42,10 @@ controllers:
 service:
   main:
     enabled: false
-  frontend:
-    enabled: true
-    controller: frontend
-    nameOverride: frontend
-    primary: true
-    type: ClusterIP
-    ports:
-      http:
-        enabled: true
-        primary: true
-        port: 80
-        targetPort: 8080
-  data-api:
-    enabled: true
-    controller: data-api
-    nameOverride: data-api
-    primary: true
-    type: ClusterIP
-    ports:
-      http:
-        enabled: true
-        primary: true
-        port: 80
-        targetPort: 8080
   postgres:
     type: ClusterIP
     primary: false
+    forceRename: "{{ .Release.Name }}-postgres"
     ports:
       postgres:
         enabled: true
@@ -195,23 +95,5 @@ persistence:
 route:
   main:
     enabled: false
-  frontend:
-    parentRefs:
-      - name: main
-        namespace: envoy-gateway-system
-        group: gateway.networking.k8s.io
-        kind: Gateway
-    hostnames:
-      - test.mattgerega.net
-    rules:
-      - matches:
-          - path:
-              type: PathPrefix
-              value: /
-        backendRefs:
-          - identifier: frontend
-            port: 80
-
-
 
 env_name: dev

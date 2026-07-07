@@ -1,6 +1,21 @@
 releases:
+  # Postgres backing store. Kept under this repo's existing release name
+  # (unchanged from before the app chart was split out) so Helm adopts the
+  # already-live Deployment/Service/PVC/Secret in place rather than creating
+  # new ones -- see apps/techradar/charts/techradar's forceRename comments.
   - name: techradar
     chart: ./charts/{{`{{ .Release.Name }}`}}
+    namespace: ra-{{`{{ .Environment.Name }}`}}-techradar
+    missingFileHandler: Warn
+    values:
+    - config/postgres-values.yaml.gotmpl
+    - config/{{`{{ .Environment.Name }}`}}.yaml
+
+  # The app itself (frontend + data-api), published as an OCI chart from
+  # the techradar repo and versioned alongside the image tags.
+  - name: techradar-app
+    chart: oci://ghcr.io/spydersoft-consulting/charts/techradar
+    version: "{{`{{ .Values.imageTags.chart_version }}`}}"
     namespace: ra-{{`{{ .Environment.Name }}`}}-techradar
     missingFileHandler: Warn
     values:
