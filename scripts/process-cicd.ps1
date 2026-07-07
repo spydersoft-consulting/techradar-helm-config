@@ -18,51 +18,34 @@ $shortBranchName = $branchName.Replace("refs/heads/", "")
 
 # Two build shapes reach this script (feature/* branches no longer deploy):
 #  - a push to the app repo's main branch -> a beta build (GitVersion tags
-#    X.Y.Z-beta.<n>) -> goes to the "beta" branch here, environment "test".
-#    Kept on a separate branch (not helm-config's own "main") so it can
-#    never reach the stage/production promotion stages in release.yml,
-#    which only trigger off pushes to this repo's "main".
-#  - anything else (a tag push on the app repo) -> a release build -> goes
-#    to this repo's "main" branch, environment "stage", eligible for the
-#    existing stage->production promotion in release.yml.
+#    X.Y.Z-beta.<n>) -> updates environments/test/images.yaml.
+#  - anything else (a tag push on the app repo) -> a release build ->
+#    updates environments/stage/images.yaml.
+# Both always commit to this repo's own main -- there used to be a
+# separate persistent "beta" branch for the first case, kept apart from
+# main so a beta update could never reach the stage->production promotion
+# in release.yml. That branch only ever received tag-bump commits, so it
+# silently drifted from main's own structural changes over time (a chart
+# split landed on main and the branch kept rendering the pre-split
+# definition for days before anyone noticed). Replaced by path-based
+# pipeline triggers instead (pipeline-test.yml / pipeline-main.yml, each
+# triggered only by its own environment's tag file changing) -- the same
+# safety property (beta can't reach production) now comes from which
+# pipeline definition even fires, not from which branch the commit is on.
 if ($shortBranchName -eq "main") {
     $environment = "test"
-    $helmBranch = "beta"
     $commitMessagePrefix = "BETA"
 }
 else {
     $environment = "stage"
-    $helmBranch = "main"
     $commitMessagePrefix = "RELEASE"
 }
 
-Write-Host "Processing $branchName -> environment $environment, helm branch $helmBranch"
-$branchExists = ((git ls-remote origin "refs/heads/$helmBranch" | Measure-Object -line).Lines -gt 0)
-if ($branchExists) {
-    Write-Host "Using existing branch -> $helmBranch"
-    Invoke-Expression "git fetch"
-    Invoke-Expression "git checkout $helmBranch"
-    Invoke-Expression "git reset --hard"
-    # Only a branch that already existed on the remote has upstream tracking
-    # info to rebase against -- a brand-new local branch doesn't yet, and
-    # `git pull --rebase` would just fail noisily (harmlessly) for it.
-    Invoke-Expression "git pull --rebase"
-    if ($helmBranch -ne "main") {
-        # beta is long-lived and only ever receives tag-bump commits from
-        # this script -- without merging main in, it silently drifts further
-        # from main's structural changes (chart references, helmfile
-        # definitions, etc.) every time main changes, and test stops
-        # reflecting main's actual current structure. Confirmed: this
-        # already happened once -- a chart split landed on main and beta
-        # kept rendering the pre-split single-release helmfile for days
-        # until this fix.
-        Invoke-Expression "git merge origin/main --no-edit"
-    }
-}
-else {
-    Write-Host "Creating new local branch -> $helmBranch"
-    Invoke-Expression "git checkout -b $helmBranch"
-}
+Write-Host "Processing $branchName -> environment $environment"
+Invoke-Expression "git fetch"
+Invoke-Expression "git checkout main"
+Invoke-Expression "git reset --hard"
+Invoke-Expression "git pull --rebase"
 $imageFile = "./environments/$environment/images.yaml"
 
 Write-Host "Replacing tags in $imageFile"
@@ -88,4 +71,4 @@ Pop-Location
 Invoke-Expression "git add $imageFile"
 
 Invoke-Expression "git commit -m '$commitMessagePrefix - $message'"
-Invoke-Expression "git push origin $helmBranch"
+Invoke-Expression "git push origin main"
