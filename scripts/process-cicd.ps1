@@ -47,6 +47,17 @@ if ($branchExists) {
     # info to rebase against -- a brand-new local branch doesn't yet, and
     # `git pull --rebase` would just fail noisily (harmlessly) for it.
     Invoke-Expression "git pull --rebase"
+    if ($helmBranch -ne "main") {
+        # beta is long-lived and only ever receives tag-bump commits from
+        # this script -- without merging main in, it silently drifts further
+        # from main's structural changes (chart references, helmfile
+        # definitions, etc.) every time main changes, and test stops
+        # reflecting main's actual current structure. Confirmed: this
+        # already happened once -- a chart split landed on main and beta
+        # kept rendering the pre-split single-release helmfile for days
+        # until this fix.
+        Invoke-Expression "git merge origin/main --no-edit"
+    }
 }
 else {
     Write-Host "Creating new local branch -> $helmBranch"
