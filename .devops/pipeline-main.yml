@@ -13,13 +13,21 @@ resources:
       endpoint: spydersoft-gh
       name: spydersoft-consulting/azure-devops-templates
 
+# Stage + production only. Dispatch used to be by branch (main vs a
+# persistent beta branch); it's now by which environment's tag file
+# actually changed, since that's the real signal and a persistent branch
+# just drifted from main over time (see pipeline-test.yml for the other
+# half). A commit that only touches environments/test/** never triggers
+# this pipeline at all, so it structurally cannot reach the
+# stage->production promotion in release.yml.
 trigger:
   batch: true
   branches:
     include:
     - main
-    - beta
   paths:
+    include:
+    - environments/stage/*
     exclude:
     - README.md
     - scripts/*
@@ -27,8 +35,4 @@ trigger:
 pr: none
 
 extends:
-  ${{ if contains(variables['Build.SourceBranch'], 'main') }}:
-    template: release.yml
-  ${{ if not(contains(variables['Build.SourceBranch'], 'main')) }}:
-    template: beta.yml
-
+  template: release.yml
