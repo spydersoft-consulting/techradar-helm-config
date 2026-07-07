@@ -6,3 +6,13 @@ stages:
     argoRepoName: ops_nonprod_cluster
     argoBaseDir: apps/reference-architecture
     helmfileVersion: "1.2.3"
+    pregenerateSteps:
+      # techradar-app's release now pulls its chart from an OCI registry
+      # (ghcr.io) -- helmfile needs to be authenticated for that pull,
+      # which nothing here previously required (only public Helm repos
+      # and local charts, before this).
+      - task: Docker@2
+        displayName: Login to Container Registry (for OCI chart pulls)
+        inputs:
+          command: login
+          containerRegistry: github-spydersoft-docker
