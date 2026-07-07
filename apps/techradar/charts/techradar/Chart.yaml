@@ -1,6 +1,6 @@
 apiVersion: v2
 name: techradar
-description: Postgres backing store for Spydersoft Tech Radar (app itself is published separately as an OCI chart from the techradar repo)
+description: Postgres + Vault-backed app secrets for Spydersoft Tech Radar (app itself is published separately as an OCI chart from the techradar repo)
 
 # A chart can be either an 'application' or a 'library' chart.
 #
