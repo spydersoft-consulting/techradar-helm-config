@@ -13,13 +13,12 @@ resources:
       endpoint: spydersoft-gh
       name: spydersoft-consulting/azure-devops-templates
 
-# Stage + production only. Dispatch used to be by branch (main vs a
-# persistent beta branch); it's now by which environment's tag file
-# actually changed, since that's the real signal and a persistent branch
-# just drifted from main over time (see pipeline-test.yml for the other
-# half). A commit that only touches environments/test/** never triggers
-# this pipeline at all, so it structurally cannot reach the
-# stage->production promotion in release.yml.
+# Every build (beta or release) writes only to environments/test/images.yaml
+# -- see scripts/process-cicd.ps1. The stage/production promotions this
+# pipeline performs push their own commits (with [skip ci], same
+# convention the old production-promotion step already used) rather than
+# relying on a separate trigger, so this is the only path this pipeline
+# needs to watch.
 trigger:
   batch: true
   branches:
@@ -27,7 +26,7 @@ trigger:
     - main
   paths:
     include:
-    - environments/stage/*
+    - environments/test/*
     exclude:
     - README.md
     - scripts/*
@@ -35,4 +34,4 @@ trigger:
 pr: none
 
 extends:
-  template: release.yml
+  template: deploy.yml
