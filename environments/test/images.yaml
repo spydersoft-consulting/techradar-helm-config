@@ -1,4 +1,4 @@
 imageTags:
-  data_api: 2.1.0
-  frontend: 2.1.0
-  chart_version: 2.1.0
+  chart_version: 2.1.1-beta.1
+  data_api: 2.1.1-beta.1
+  frontend: 2.1.1-beta.1
