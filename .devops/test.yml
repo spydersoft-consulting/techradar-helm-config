@@ -33,6 +33,9 @@ stages:
       pool:
         name: Default
       steps:
+        - checkout: self
+          clean: true
+          persistCredentials: true
         - script: |
             git config --global user.email "gerega@gmail.com"
             git config --global user.name "CI/CD User"
