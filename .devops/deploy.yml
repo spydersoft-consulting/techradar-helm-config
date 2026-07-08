@@ -55,7 +55,13 @@ stages:
     dependsOn:
       - generate_commit_manifest_test
       - detect_version
-    condition: and(succeeded(), eq(stageDependencies.detect_version.detect.outputs['DetectVersion.isRelease'], 'true'))
+    # dependencies (not stageDependencies -- that context is only valid
+    # inside a job's condition, not a stage's own condition) referencing
+    # detect_version's job/step output. Confirmed the wrong context name
+    # silently resolves to empty rather than erroring: a real release
+    # build correctly detected as such by DetectVersion's own log still
+    # got skipped here, because eq(<empty>, 'true') is false.
+    condition: and(succeeded(), eq(dependencies.detect_version.outputs['detect.DetectVersion.isRelease'], 'true'))
     pregenerateSteps:
       - task: Docker@2
         displayName: Login to Container Registry (for OCI chart pulls)
