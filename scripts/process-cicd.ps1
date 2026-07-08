@@ -16,30 +16,17 @@ $tags = $tagsCollection.Split(",")
 
 $shortBranchName = $branchName.Replace("refs/heads/", "")
 
-# Two build shapes reach this script (feature/* branches no longer deploy):
-#  - a push to the app repo's main branch -> a beta build (GitVersion tags
-#    X.Y.Z-beta.<n>) -> updates environments/test/images.yaml.
-#  - anything else (a tag push on the app repo) -> a release build ->
-#    updates environments/stage/images.yaml.
-# Both always commit to this repo's own main -- there used to be a
-# separate persistent "beta" branch for the first case, kept apart from
-# main so a beta update could never reach the stage->production promotion
-# in release.yml. That branch only ever received tag-bump commits, so it
-# silently drifted from main's own structural changes over time (a chart
-# split landed on main and the branch kept rendering the pre-split
-# definition for days before anyone noticed). Replaced by path-based
-# pipeline triggers instead (pipeline-test.yml / pipeline-main.yml, each
-# triggered only by its own environment's tag file changing) -- the same
-# safety property (beta can't reach production) now comes from which
-# pipeline definition even fires, not from which branch the commit is on.
-if ($shortBranchName -eq "main") {
-    $environment = "test"
-    $commitMessagePrefix = "BETA"
-}
-else {
-    $environment = "stage"
-    $commitMessagePrefix = "RELEASE"
-}
+# Both build shapes -- a push to the app repo's main branch (a beta build,
+# GitVersion tags X.Y.Z-beta.<n>) and a tag push (a release build, an
+# unlabeled X.Y.Z) -- always update environments/test/images.yaml. Nothing
+# ever writes to stage/production directly from here. Promotion onward
+# (test -> stage, gated on the version actually being an unlabeled
+# release; then stage -> production, unconditional) happens in
+# test.yml/release.yml, based on what's actually in test/images.yaml once
+# it's committed, not on which branch produced it -- that keeps the
+# promotion decision declarative and independent of this script.
+$environment = "test"
+$commitMessagePrefix = if ($shortBranchName -eq "main") { "BETA" } else { "RELEASE" }
 
 Write-Host "Processing $branchName -> environment $environment"
 Invoke-Expression "git fetch"
