@@ -1,5 +1,14 @@
 apiVersion: v2
-name: techradar-postgres
+# MUST stay distinct from the old chart's Chart.yaml `name:` (techradar-postgres).
+# helmfile's `helmfile template --output-dir-template ".../{{ .Release.Namespace }}"`
+# groups rendered output into a subfolder per CHART NAME (not Helm release
+# name, not directory name) -- with both charts declaring the same chart
+# name, the two releases' manifests landed in the same output folder at the
+# same relative file path (templates/common.yaml) and the second one
+# silently overwrote the first, dropping the old release's objects from
+# what got committed to the GitOps repo entirely. Caught before any Argo
+# sync happened (syncPolicy has no `automated`, so nothing auto-pruned).
+name: techradar-data
 description: Postgres + Vault-backed app secrets for Spydersoft Tech Radar (app itself is published separately as an OCI chart from the techradar repo)
 
 # A chart can be either an 'application' or a 'library' chart.
