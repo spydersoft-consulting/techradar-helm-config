@@ -1,12 +1,42 @@
 releases:
-  # Postgres backing store. Renamed from "techradar" to "techradar-data"
-  # (release name and underlying object names, via a real data migration --
-  # not just a config decouple) -- see apps/techradar/charts/techradar-data's
-  # forceRename comments for how the Deployment/Service names track this.
+  # OLD Postgres backing store, being renamed to "techradar-data" below
+  # (release name and underlying object names -- a real data migration, not
+  # just a config decouple, since the PVC has no forceRename and collapses
+  # to the bare release name). Deliberately kept defined and installed
+  # alongside the new release during the migration window: this is
+  # ArgoCD/GitOps with prune-on-sync, so if this block were simply removed
+  # in favor of the renamed one, the very next deploy would prune the old
+  # Deployment/Service/PVC before any data had been copied over. Shrink the
+  # env list below as each environment's migration is verified and the old
+  # release is ready to be decommissioned there; delete this block entirely
+  # once the list is empty.
+  - name: techradar
+    chart: ./charts/{{`{{ .Release.Name }}`}}
+    namespace: ra-{{`{{ .Environment.Name }}`}}-techradar
+    missingFileHandler: Warn
+    installed: {{ has .Environment.Name (list "test" "stage" "production") }}
+    values:
+    - config/postgres-values.yaml.gotmpl
+    - config/{{`{{ .Environment.Name }}`}}.yaml
+
+  # NEW Postgres backing store -- see the migration runbook. Once cut over
+  # and the OLD "techradar" release above is removed from an environment's
+  # list, this becomes the sole backing-infra release there.
+  #
+  # renderSecrets stays false until this environment's cutover step
+  # (Postgres itself deploys either way; the ExternalSecret templates with
+  # literal, non-release-derived names -- postgres-secrets-es,
+  # techradar-data-api-es, techradar-frontend-es -- are gated separately
+  # from "installed" above because they'd otherwise collide with the OLD
+  # release's identically-named ExternalSecrets, and techradar-data-api-es's
+  # connection string points at the new, not-yet-populated database).
   - name: techradar-data
     chart: ./charts/{{`{{ .Release.Name }}`}}
     namespace: ra-{{`{{ .Environment.Name }}`}}-techradar
     missingFileHandler: Warn
+    set:
+    - name: renderSecrets
+      value: {{ has .Environment.Name (list) }}
     values:
     - config/postgres-values.yaml.gotmpl
     - config/{{`{{ .Environment.Name }}`}}.yaml
