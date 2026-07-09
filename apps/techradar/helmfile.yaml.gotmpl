@@ -25,7 +25,7 @@ releases:
     # environment cuts over, or whichever Application synced most recently
     # wins and the connection string can flip back to the old host.
     - name: cutOver
-      value: {{ has .Environment.Name (list "test") }}
+      value: {{ has .Environment.Name (list "test" "stage" "production") }}
     values:
     - config/postgres-values.yaml.gotmpl
     - config/{{`{{ .Environment.Name }}`}}.yaml
@@ -54,9 +54,9 @@ releases:
     missingFileHandler: Warn
     set:
     - name: controllers.postgres.replicas
-      value: {{ if has .Environment.Name (list "test") }}1{{ else }}0{{ end }}
+      value: {{ if has .Environment.Name (list "test" "stage" "production") }}1{{ else }}0{{ end }}
     - name: renderSecrets
-      value: {{ has .Environment.Name (list "test") }}
+      value: {{ has .Environment.Name (list "test" "stage" "production") }}
     values:
     - config/postgres-values.yaml.gotmpl
     - config/{{`{{ .Environment.Name }}`}}.yaml
