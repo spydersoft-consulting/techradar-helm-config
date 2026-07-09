@@ -1,9 +1,9 @@
 releases:
-  # Postgres backing store. Kept under this repo's existing release name
-  # (unchanged from before the app chart was split out) so Helm adopts the
-  # already-live Deployment/Service/PVC/Secret in place rather than creating
-  # new ones -- see apps/techradar/charts/techradar's forceRename comments.
-  - name: techradar
+  # Postgres backing store. Renamed from "techradar" to "techradar-data"
+  # (release name and underlying object names, via a real data migration --
+  # not just a config decouple) -- see apps/techradar/charts/techradar-data's
+  # forceRename comments for how the Deployment/Service names track this.
+  - name: techradar-data
     chart: ./charts/{{`{{ .Release.Name }}`}}
     namespace: ra-{{`{{ .Environment.Name }}`}}-techradar
     missingFileHandler: Warn
