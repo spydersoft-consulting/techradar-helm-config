@@ -23,18 +23,27 @@ releases:
   # and the OLD "techradar" release above is removed from an environment's
   # list, this becomes the sole backing-infra release there.
   #
+  # postgresReady stays false until this environment's PVC has been
+  # populated with the copied data: with 0 replicas the chart still creates
+  # the (standalone, not pod-scheduling-dependent) PVC object, but no
+  # Postgres pod ever starts -- avoiding a fresh initdb auto-init on the
+  # empty PVC that we'd otherwise have to detect and wipe before copying
+  # the real data over. Flip to true only after the copy is verified.
+  #
   # renderSecrets stays false until this environment's cutover step
-  # (Postgres itself deploys either way; the ExternalSecret templates with
-  # literal, non-release-derived names -- postgres-secrets-es,
+  # (a separate, later moment than postgresReady -- the ExternalSecret
+  # templates with literal, non-release-derived names -- postgres-secrets-es,
   # techradar-data-api-es, techradar-frontend-es -- are gated separately
   # from "installed" above because they'd otherwise collide with the OLD
   # release's identically-named ExternalSecrets, and techradar-data-api-es's
-  # connection string points at the new, not-yet-populated database).
+  # connection string points at the new database).
   - name: techradar-data
     chart: ./charts/{{`{{ .Release.Name }}`}}
     namespace: ra-{{`{{ .Environment.Name }}`}}-techradar
     missingFileHandler: Warn
     set:
+    - name: controllers.postgres.replicas
+      value: {{ if has .Environment.Name (list) }}1{{ else }}0{{ end }}
     - name: renderSecrets
       value: {{ has .Environment.Name (list) }}
     values:
