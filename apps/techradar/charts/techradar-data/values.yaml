@@ -38,7 +38,7 @@ controllers:
     type: deployment
     replicas: 1
     enabled: true
-    revisionHistoryLimit: 3
+    revisionHistoryLimit: 1
 service:
   main:
     enabled: false
