@@ -15,6 +15,17 @@ releases:
     namespace: ra-{{`{{ .Environment.Name }}`}}-techradar
     missingFileHandler: Warn
     installed: {{ has .Environment.Name (list "test" "stage" "production") }}
+    set:
+    # Folder-level separation from techradar-data (Chart.yaml fix) only
+    # stops the two releases' manifests from colliding in one git commit --
+    # it does NOT stop two separate GitOps Applications from both applying
+    # an object with the same kind+name+namespace to the live cluster.
+    # This side must stop rendering its own copies of postgres-secrets-es /
+    # techradar-data-api-es / techradar-frontend-es as soon as an
+    # environment cuts over, or whichever Application synced most recently
+    # wins and the connection string can flip back to the old host.
+    - name: cutOver
+      value: {{ has .Environment.Name (list "test") }}
     values:
     - config/postgres-values.yaml.gotmpl
     - config/{{`{{ .Environment.Name }}`}}.yaml

@@ -1,3 +1,18 @@
+# Gates this chart's ExternalSecret templates. Folder-level separation in
+# the GitOps repo (see techradar-data's Chart.yaml comment) only prevents
+# the two releases' rendered manifests from overwriting each other in the
+# same git commit -- it does NOT prevent two separate GitOps Applications
+# from both independently applying an object with the same kind+name+
+# namespace to the live cluster, since ownership there is decided by
+# whichever Application synced most recently, not by which folder a
+# manifest came from. Confirmed directly: after techradar-data's
+# renderSecrets flipped on for an environment and synced cleanly, the live
+# techradar-data-api-es ExternalSecret was still tracked by (and reverted
+# to) THIS chart's release, because this chart kept rendering its own
+# identically-named copy unconditionally. Stays false until this
+# environment cuts over, then flips true to stop this side from rendering.
+cutOver: false
+
 defaultPodOptions:
   imagePullSecrets:
     - name: cr-spydersoft-github
