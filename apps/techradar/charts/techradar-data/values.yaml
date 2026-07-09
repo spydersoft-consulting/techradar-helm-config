@@ -1,13 +1,3 @@
-# Gates the ExternalSecret templates below. The old "techradar" release's
-# equivalents (postgres-secrets-es, techradar-data-api-es, techradar-frontend-es)
-# use the exact same literal, non-release-derived object names -- with both
-# releases installed side by side during the migration window, whichever
-# renders last in the combined manifest bundle wins, and techradar-data-api-es's
-# connection string differs (points at the new, not-yet-populated database).
-# Stays false until this environment's cutover step, set via the
-# release-level `set:` override in helmfile.yaml.gotmpl.
-renderSecrets: false
-
 defaultPodOptions:
   imagePullSecrets:
     - name: cr-spydersoft-github
