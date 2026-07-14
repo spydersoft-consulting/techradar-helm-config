@@ -1,4 +1,0 @@
-environment_hostname: mattgerega.org
-env_name: stage
-alloy_otlp_endpoint: "http://nonproduction-grafana-alloy.grafana.svc.cluster.local:4318"
-org_id: stage

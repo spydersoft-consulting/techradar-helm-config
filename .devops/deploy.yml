@@ -40,16 +40,15 @@ stages:
           command: login
           containerRegistry: github-spydersoft-docker
 
-# Only queues for a release build (gated on detect_version's output, not on
-# which branch produced it). The stage Environment has an approval check
-# configured (see ops-automation's public-environment-approvals.tf) --
-# deploy_marker_stage pauses there before commit_changes_stage (the step
-# that actually triggers Argo to sync) is allowed to run.
+# stage was removed (2026-07): it duplicated test as a full 3-tier stack
+# (frontend, data-api, its own Postgres) for a reference-architecture demo
+# app with no real pre-prod need. Promotion now goes straight from test to
+# production, gated on the same detect_version output stage used to use.
 - template: stages/stages-generate-commit-manifests/v1.yml@templates
   parameters:
-    environmentName: "stage"
+    environmentName: "production"
     helmfileDirectory: ./
-    argoRepoName: ops_nonprod_cluster
+    argoRepoName: ops_prod_cluster
     argoBaseDir: apps/reference-architecture
     helmfileVersion: "1.2.3"
     dependsOn:
@@ -75,40 +74,8 @@ stages:
           git checkout main
           git pull --rebase
 
-          cp environments/test/images.yaml environments/stage/images.yaml
-          git add environments/stage/images.yaml
-          git commit -m "Promote Test To Stage [skip ci]"
-          git push origin main
-        displayName: Promote Test Images to Stage
-
-# No explicit dependsOn/condition needed: Azure Pipelines' implicit default
-# (depends on the immediately preceding stage, condition succeeded()) is
-# exactly right here -- if stage was skipped (a beta build), a downstream
-# stage depending on it with the default succeeded() condition is skipped
-# too, automatically. The production Environment has its own approval
-# check, same mechanism as stage above.
-- template: stages/stages-generate-commit-manifests/v1.yml@templates
-  parameters:
-    environmentName: "production"
-    helmfileDirectory: ./
-    argoRepoName: ops_prod_cluster
-    argoBaseDir: apps/reference-architecture
-    helmfileVersion: "1.2.3"
-    pregenerateSteps:
-      - task: Docker@2
-        displayName: Login to Container Registry (for OCI chart pulls)
-        inputs:
-          command: login
-          containerRegistry: github-spydersoft-docker
-      - script: |
-          git config --global user.email "gerega@gmail.com"
-          git config --global user.name "CI/CD User"
-          cd $(Build.SourcesDirectory)
-          git checkout main
-          git pull --rebase
-
-          cp $(Build.SourcesDirectory)/environments/stage/images.yaml $(Build.SourcesDirectory)/environments/production/images.yaml -f
+          cp $(Build.SourcesDirectory)/environments/test/images.yaml $(Build.SourcesDirectory)/environments/production/images.yaml -f
           git add --all
-          git commit -m "Promote Stage To Production [skip ci]"
+          git commit -m "Promote Test To Production [skip ci]"
           git push origin main
-        displayName: Copy Stage Images to Production
+        displayName: Copy Test Images to Production
