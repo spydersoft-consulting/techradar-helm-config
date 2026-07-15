@@ -46,6 +46,9 @@ controllers:
             identifier: common
         - configMapRef:
             identifier: frontend
+        resources:
+          requests:
+            cpu: 5m
   data-api:
     containers:
       main:
@@ -58,6 +61,9 @@ controllers:
             identifier: common
         - configMapRef:
             identifier: data-api
+        resources:
+          requests:
+            cpu: 5m
 
 route:
   frontend:
