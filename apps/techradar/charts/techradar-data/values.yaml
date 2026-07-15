@@ -32,6 +32,9 @@ controllers:
           name: POSTGRES_HOST
         - value: techradar
           name: POSTGRES_DB
+        resources:
+          requests:
+            cpu: 5m
         strategy:
           type: Recreate
     strategy: Recreate
