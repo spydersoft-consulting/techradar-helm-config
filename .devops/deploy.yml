@@ -1,3 +1,14 @@
+parameters:
+  # Pool selection: set vmImage to run on a Microsoft-hosted agent (e.g.
+  # "ubuntu-latest"); leave it empty (the default) to use the self-hosted
+  # poolName pool instead. vmImage takes precedence when both are set.
+  - name: poolName
+    type: string
+    default: Default
+  - name: vmImage
+    type: string
+    default: ""
+
 stages:
 # Every build (beta or release) writes to environments/test/images.yaml --
 # see scripts/process-cicd.ps1. This determines whether the version just
@@ -10,7 +21,10 @@ stages:
   jobs:
     - job: detect
       pool:
-        name: Default
+        ${{ if ne(parameters.vmImage, '') }}:
+          vmImage: ${{ parameters.vmImage }}
+        ${{ else }}:
+          name: ${{ parameters.poolName }}
       steps:
         - checkout: self
           clean: true
@@ -31,6 +45,8 @@ stages:
     argoRepoName: ops_nonprod_cluster
     argoBaseDir: apps/reference-architecture
     helmfileVersion: "1.2.3"
+    poolName: ${{ parameters.poolName }}
+    vmImage: ${{ parameters.vmImage }}
     pregenerateSteps:
       # techradar-app's release pulls its chart from an OCI registry
       # (ghcr.io) -- helmfile needs to be authenticated for that pull.
@@ -51,6 +67,8 @@ stages:
     argoRepoName: ops_prod_cluster
     argoBaseDir: apps/reference-architecture
     helmfileVersion: "1.2.3"
+    poolName: ${{ parameters.poolName }}
+    vmImage: ${{ parameters.vmImage }}
     dependsOn:
       - generate_commit_manifest_test
       - detect_version
